@@ -25,6 +25,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // server.h
 
+#include "q_stdinc.h"
+
 typedef struct
 {
 	int			maxclients;
@@ -38,92 +40,93 @@ typedef struct
 
 #define MAX_SIGNON_BUFFERS 256
 
+//Make 8-bit
 typedef enum {ss_loading, ss_active} server_state_t;
 
 typedef struct
 {
-	qboolean	active;				// false if only a net client
+	qboolean	active;				// false if only a net client				//1
+	qboolean	paused;															//1
+	qboolean	loadgame;			// handle connections specially				//1
 
-	qboolean	paused;
-	qboolean	loadgame;			// handle connections specially
+	double		time;															//4
 
-	double		time;
+	int			lastcheck;			// used by PF_checkclient					//4
+	double		lastchecktime;													//4
 
-	int			lastcheck;			// used by PF_checkclient
-	double		lastchecktime;
-
-	char		name[64];			// map name
-	char		modelname[64];		// maps/<name>.bsp, for model_precache[0]
-	struct qmodel_s	*worldmodel;
-	const char	*model_precache[MAX_MODELS];	// NULL terminated
-	struct qmodel_s	*models[MAX_MODELS];
-	const char	*sound_precache[MAX_SOUNDS];	// NULL terminated
-	const char	*lightstyles[MAX_LIGHTSTYLES];
-	int			num_edicts;
-	int			max_edicts;
-	edict_t		*edicts;			// can NOT be array indexed, because
+	char		name[64];			// map name									//64
+	char		modelname[64];		// maps/<name>.bsp, for model_precache[0]	//64
+	struct qmodel_s	*worldmodel;												//4
+	const char	*model_precache[MAX_MODELS];	// NULL terminated				//4
+	struct qmodel_s	*models[MAX_MODELS];										//4
+	const char	*sound_precache[MAX_SOUNDS];	// NULL terminated				//4
+	const char	*lightstyles[MAX_LIGHTSTYLES];									//4
+	int			num_edicts;														//4
+	int			max_edicts;														//4
+	edict_t		*edicts;			// can NOT be array indexed, because		//4
 									// edict_t is variable sized, but can
 									// be used to reference the world ent
-	server_state_t	state;			// some actions are only valid during load
+	server_state_t	state;			// some actions are only valid during load	//1
 
-	sizebuf_t	datagram;
-	byte		datagram_buf[MAX_DATAGRAM];
+	sizebuf_t	datagram;														//14
+	byte		datagram_buf[MAX_DATAGRAM];										//1024
 
-	sizebuf_t	reliable_datagram;	// copied to all clients at end of frame
-	byte		reliable_datagram_buf[MAX_DATAGRAM];
+	sizebuf_t	reliable_datagram;	// copied to all clients at end of frame	//14
+	byte		reliable_datagram_buf[MAX_DATAGRAM];							//1024
 
-	sizebuf_t	*signon;
-	int			num_signon_buffers;
-	sizebuf_t	*signon_buffers[MAX_SIGNON_BUFFERS];
+	sizebuf_t	*signon;														//4
+	int			num_signon_buffers;												//4
+	sizebuf_t	*signon_buffers[MAX_SIGNON_BUFFERS];							//4
 
-	unsigned	protocol; //johnfitz
-	unsigned	protocolflags;
-} server_t;
+	unsigned	protocol; //johnfitz											//4
+	unsigned	protocolflags;													//4
+} server_t;																		//2,272 Bytes (Surface level)
 
 
 #define	NUM_PING_TIMES		16
 #define	NUM_SPAWN_PARMS		16
 
+//Be 8-bit
 enum sendsignon_e
 {
 	PRESPAWN_DONE,
-	PRESPAWN_FLUSH=1,
+	uint8_t PRESPAWN_FLUSH=1,
 	PRESPAWN_SIGNONBUFS,
 	PRESPAWN_SIGNONMSG,
 };
 
 typedef struct client_s
 {
-	qboolean		active;				// false = client is free
-	qboolean		spawned;			// false = don't send datagrams
-	qboolean		dropasap;			// has been told to go to another level
-	enum sendsignon_e	sendsignon;			// only valid before spawned
-	int				signonidx;
+	qboolean		active;				// false = client is free				//1
+	qboolean		spawned;			// false = don't send datagrams			//1
+	qboolean		dropasap;			// has been told to go to another level	//1
+	enum sendsignon_e	sendsignon;			// only valid before spawned		//1
+	int				signonidx;													//4
 
-	double			last_message;		// reliable messages must be sent
+	double			last_message;		// reliable messages must be sent		//4
 										// periodically
 
-	struct qsocket_s *netconnection;	// communications handle
+	struct qsocket_s *netconnection;	// communications handle				//4
 
-	usercmd_t		cmd;				// movement
-	vec3_t			wishdir;			// intended motion calced from cmd
+	usercmd_t		cmd;				// movement 							//12
+	vec3_t			wishdir;			// intended motion calced from cmd 		//6
 
-	sizebuf_t		message;			// can be added to at any time,
+	sizebuf_t		message;			// can be added to at any time, 		//14
 										// copied and clear once per frame
-	byte			msgbuf[MAX_MSGLEN];
-	edict_t			*edict;				// EDICT_NUM(clientnum+1)
-	char			name[32];			// for printing to other people
-	int				colors;
+	byte			msgbuf[MAX_MSGLEN];											//16000
+	edict_t			*edict;				// EDICT_NUM(clientnum+1)				//4
+	char			name[32];			// for printing to other people			//32
+	int				colors;														//4
 
-	float			ping_times[NUM_PING_TIMES];
-	int				num_pings;			// ping_times[num_pings%NUM_PING_TIMES]
+	float			ping_times[NUM_PING_TIMES];									//32
+	int				num_pings;			// ping_times[num_pings%NUM_PING_TIMES]	//4
 
 // spawn parms are carried from level to level
-	float			spawn_parms[NUM_SPAWN_PARMS];
+	float			spawn_parms[NUM_SPAWN_PARMS];								//2
 
 // client known data for deltas
-	int				old_frags;
-} client_t;
+	int				old_frags;													//4
+} client_t;																		//16130 Bytes (Surface level)
 
 
 //=============================================================================

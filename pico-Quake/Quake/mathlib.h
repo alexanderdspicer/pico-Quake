@@ -40,15 +40,13 @@ struct mplane_s;
 extern vec3_t vec3_origin;
 
 #define	nanmask		(255 << 23)	/* 7F800000 */
-#if 0	/* macro is violating strict aliasing rules */
-#define	IS_NAN(x)	(((*(int *) (char *) &x) & nanmask) == nanmask)
-#else
+/* macro is violating strict aliasing rules */
+//#define	IS_NAN(x)	(((*(int *) (char *) &x) & nanmask) == nanmask)
 static inline int IS_NAN (float x) {
 	union { float f; int i; } num;
 	num.f = x;
 	return ((num.i & nanmask) == nanmask);
 }
-#endif
 
 #define Q_rint(x) ((x) > 0 ? (int)((x) + 0.5) : (int)((x) - 0.5)) //johnfitz -- from joequake
 
@@ -77,10 +75,11 @@ void VectorAngles (const vec3_t forward, vec3_t angles); //johnfitz
 
 void VectorMA (vec3_t veca, float scale, vec3_t vecb, vec3_t vecc);
 
-vec_t _DotProduct (vec3_t v1, vec3_t v2);
-void _VectorSubtract (vec3_t veca, vec3_t vecb, vec3_t out);
-void _VectorAdd (vec3_t veca, vec3_t vecb, vec3_t out);
-void _VectorCopy (vec3_t in, vec3_t out);
+//UNUSED
+//vec_t _DotProduct (vec3_t v1, vec3_t v2);
+//void _VectorSubtract (vec3_t veca, vec3_t vecb, vec3_t out);
+//void _VectorAdd (vec3_t veca, vec3_t vecb, vec3_t out);
+//void _VectorCopy (vec3_t in, vec3_t out);
 
 int VectorCompare (vec3_t v1, vec3_t v2);
 vec_t VectorLength (vec3_t v);

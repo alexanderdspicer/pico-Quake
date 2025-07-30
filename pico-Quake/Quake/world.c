@@ -660,6 +660,7 @@ qboolean SV_RecursiveHullCheck (hull_t *hull, int num, float p1f, float p2f, vec
 		frac = (t1 + DIST_EPSILON)/(t1-t2);
 	else
 		frac = (t1 - DIST_EPSILON)/(t1-t2);
+	//Modulo?
 	if (frac < 0)
 		frac = 0;
 	if (frac > 1)
@@ -853,6 +854,7 @@ void SV_MoveBounds (vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, vec3_t b
 {
 	int		i;
 
+	//DMA
 	for (i=0 ; i<3 ; i++)
 	{
 		if (end[i] > start[i])

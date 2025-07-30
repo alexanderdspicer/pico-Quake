@@ -192,7 +192,7 @@ void	Host_FindMaxClients (void)
 
 	svs.maxclients = 1;
 
-	i = COM_CheckParm ("-dedicated");
+	/*i = COM_CheckParm ("-dedicated");
 	if (i)
 	{
 		cls.state = ca_dedicated;
@@ -203,10 +203,10 @@ void	Host_FindMaxClients (void)
 		else
 			svs.maxclients = 8;
 	}
-	else
-		cls.state = ca_disconnected;
+	else*/
+	cls.state = ca_disconnected;
 
-	i = COM_CheckParm ("-listen");
+	/*i = COM_CheckParm ("-listen");
 	if (i)
 	{
 		if (cls.state == ca_dedicated)
@@ -215,7 +215,7 @@ void	Host_FindMaxClients (void)
 			svs.maxclients = Q_atoi (com_argv[i+1]);
 		else
 			svs.maxclients = 8;
-	}
+	}*/
 	if (svs.maxclients < 1)
 		svs.maxclients = 8;
 	else if (svs.maxclients > MAX_SCOREBOARD)
@@ -235,6 +235,7 @@ void	Host_FindMaxClients (void)
 void Host_Version_f (void)
 {
 	Con_Printf ("Quake Version %1.2f\n", VERSION);
+	//Add picoQuake string?
 	Con_Printf ("QuakeSpasm Version " QUAKESPASM_VER_STRING "\n");
 	Con_Printf ("Exe: " __TIME__ " " __DATE__ "\n");
 }
@@ -257,46 +258,42 @@ void Host_InitLocal (void)
 
 	Host_InitCommands ();
 
+	//DMA
 	Cvar_RegisterVariable (&host_framerate);
 	Cvar_RegisterVariable (&host_speeds);
 	Cvar_RegisterVariable (&host_maxfps); //johnfitz
-	Cvar_SetCallback (&host_maxfps, Max_Fps_f);
 	Cvar_RegisterVariable (&host_timescale); //johnfitz
-
 	Cvar_RegisterVariable (&max_edicts); //johnfitz
-	Cvar_SetCallback (&max_edicts, Max_Edicts_f);
 	Cvar_RegisterVariable (&devstats); //johnfitz
-
 	Cvar_RegisterVariable (&sys_ticrate);
 	Cvar_RegisterVariable (&sys_throttle);
 	Cvar_RegisterVariable (&serverprofile);
-
 	Cvar_RegisterVariable (&fraglimit);
 	Cvar_RegisterVariable (&timelimit);
 	Cvar_RegisterVariable (&teamplay);
-	Cvar_SetCallback (&fraglimit, Host_Callback_Notify);
-	Cvar_SetCallback (&timelimit, Host_Callback_Notify);
-	Cvar_SetCallback (&teamplay, Host_Callback_Notify);
 	Cvar_RegisterVariable (&samelevel);
 	Cvar_RegisterVariable (&noexit);
-	Cvar_SetCallback (&noexit, Host_Callback_Notify);
 	Cvar_RegisterVariable (&skill);
 	Cvar_RegisterVariable (&developer);
 	Cvar_RegisterVariable (&coop);
 	Cvar_RegisterVariable (&deathmatch);
-
 	Cvar_RegisterVariable (&campaign);
 	Cvar_RegisterVariable (&horde);
 	Cvar_RegisterVariable (&sv_cheats);
-
 	Cvar_RegisterVariable (&pausable);
-
 	Cvar_RegisterVariable (&temp1);
+
+	Cvar_SetCallback (&host_maxfps, Max_Fps_f);
+	Cvar_SetCallback (&max_edicts, Max_Edicts_f);
+	Cvar_SetCallback (&fraglimit, Host_Callback_Notify);
+	Cvar_SetCallback (&timelimit, Host_Callback_Notify);
+	Cvar_SetCallback (&teamplay, Host_Callback_Notify);
+	Cvar_SetCallback (&noexit, Host_Callback_Notify);
 
 	Host_FindMaxClients ();
 }
 
-
+//Change to write in compressed flash section
 /*
 ===============
 Host_WriteConfiguration
@@ -351,6 +348,7 @@ void SV_ClientPrintf (const char *fmt, ...)
 	q_vsnprintf (string, sizeof(string), fmt,argptr);
 	va_end (argptr);
 
+	//DMA
 	MSG_WriteByte (&host_client->message, svc_print);
 	MSG_WriteString (&host_client->message, string);
 }
@@ -376,6 +374,7 @@ void SV_BroadcastPrintf (const char *fmt, ...)
 	{
 		if (svs.clients[i].active && svs.clients[i].spawned)
 		{
+			//DMA
 			MSG_WriteByte (&svs.clients[i].message, svc_print);
 			MSG_WriteString (&svs.clients[i].message, string);
 		}
@@ -407,7 +406,7 @@ void Host_ClientCommands (const char *fmt, ...)
 SV_DropClient
 
 Called when the player is getting totally kicked off the host
-if (crash = true), don't bother sending signofs
+if (crash = true), don't bother sending signoffs
 =====================
 */
 void SV_DropClient (qboolean crash)
@@ -453,6 +452,7 @@ void SV_DropClient (qboolean crash)
 	{
 		if (!client->active)
 			continue;
+		//DMA
 		MSG_WriteByte (&client->message, svc_updatename);
 		MSG_WriteByte (&client->message, host_client - svs.clients);
 		MSG_WriteString (&client->message, "");

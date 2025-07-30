@@ -29,18 +29,20 @@ enum m_state_e {
 	m_singleplayer,
 	m_load,
 	m_save,
+#ifdef NET_PLAY
 	m_multiplayer,
 	m_setup,
 	m_net,
+	m_lanconfig,
+	m_gameoptions,
+	m_search,
+	m_slist,
+#endif
 	m_options,
 	m_video,
 	m_keys,
 	m_help,
-	m_quit,
-	m_lanconfig,
-	m_gameoptions,
-	m_search,
-	m_slist
+	m_quit
 };
 
 extern enum m_state_e m_state;

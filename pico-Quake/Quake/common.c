@@ -42,6 +42,7 @@ qboolean		fitzmode;
 
 static void COM_Path_f (void);
 
+//Remove this Pakfile check
 // if a packfile directory differs from this, it is assumed to be hacked
 #define PAK0_COUNT		339	/* id1/pak0.pak - v1.0x */
 #define PAK0_CRC_V100		13900	/* id1/pak0.pak - v1.00 */

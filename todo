@@ -1,0 +1,18 @@
+# keys.c
+- [ ] Make Console history work off of pointers, not buffer contents
+- [ ] Refactor Console history out of 'keys.c' and into more appropriate places such as 'cmd.c', or even *remove it all together*
+- [ ] DMA when copying Console history
+- [ ] ensure 'menubound' is fully "extinct" and removed
+- [ ] 'Key_Event' calls 'Char_Event' when applicable, then remove 'Char_Event' from header
+- [ ] eventually add macros for keycode keyboard definitions, such as 'K_TAB'
+- [ ] Alter program structure such that 'keys.c' flows into 'input.c' (such that a 'controllers.c' may be defined by prospective individuals)
+- [ ] Remove "keydown" in 'key.c' in favor of direct feeding HID data
+- [ ] send keyboard HID data to 'Key_Event' instead of single keycodes
+# usb.c
+- [ ] Finish implementing USB driver
+- [ ] Posture for additional USB support of hubs, ethernet adapters, audio outputs, and mass storage devices
+- [ ] Posture additionally for FAT32 file system support for the aforementioned mass storage devices (4gb should be more than enough)
+- [ ] Posture for filesystem & Compression support
+- [ ] Stand alone text editor for editing configs and the like?
+- [ ] convert all files to space-tabs (might make me a sinner, oh well)
+- [ ] Make menu modifications to reflect additional abilities, such as pinouts, enabling of I2C stacks/networking etc

@@ -1,0 +1,3 @@
+[submodule "pico-Quake/pico-sdk"]
+	path = pico-Quake/pico-sdk
+	url = https://github.com/raspberrypi/pico-sdk

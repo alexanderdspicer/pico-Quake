@@ -525,6 +525,7 @@ nextmsg:
 //				Sys_Printf ("clc_nop\n");
 				break;
 
+			//Fix this mess
 			case clc_stringcmd:
 				s = MSG_ReadString ();
 				ret = 0;

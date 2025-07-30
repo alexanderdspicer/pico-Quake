@@ -74,7 +74,6 @@ interface from being ambiguous.
 #define	CVAR_REGISTERED		(1U << 10)	// the var is added to the list of variables
 #define	CVAR_CALLBACK		(1U << 16)	// var has a callback
 
-
 typedef void (*cvarcallback_t) (struct cvar_s *);
 
 typedef struct cvar_s
@@ -103,7 +102,6 @@ struct {
 	//index must be large enough to hold all of CORE_CVAR_LENGTH
 	cvar_t cvars[CORE_CVAR_LENGTH];
 	cvar_node_t* next;
-	uint8_t index;
 } cvar_main_container;
 
 void	Cvar_RegisterVariable (cvar_t *variable);

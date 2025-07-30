@@ -32,9 +32,6 @@
 #include <sys/types.h>
 #include <stddef.h>
 #include <limits.h>
-#ifndef _WIN32 /* others we support without sys/param.h? */
-#include <sys/param.h>
-#endif
 
 #include <stdio.h>
 
@@ -53,14 +50,8 @@
    FIXME: Properly replace certain short and int usage
 	  with int16_t and int32_t.
  */
-#if defined(_MSC_VER) && (_MSC_VER < 1600)
-/* MS Visual Studio provides stdint.h only starting with
- * version 2010.  Even in VS2010, there is no inttypes.h.. */
-#include "msinttypes/stdint.h"
-#else
-#include <stdint.h>
-#endif
 
+#include <stdint.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
@@ -132,13 +123,15 @@ typedef unsigned char		byte;
 /* some structures have qboolean members and the x86 asm code expect
  * those members to be 4 bytes long. therefore, qboolean must be 32
  * bits and it can NOT be binary compatible with the 8 bit C++ bool.  */
-typedef int	qboolean;
+
+//Ignore above warning because we are not working with x86
+typedef uint8_t	qboolean;
 COMPILE_TIME_ASSERT(falsehood, (0 == false));
 COMPILE_TIME_ASSERT(truth, (1  == true));
 #else
 typedef enum {
-	false = 0,
-	true  = 1
+	uint8_t false = 0,
+	uint8_t true  = 1
 } qboolean;
 COMPILE_TIME_ASSERT(falsehood, ((1 != 1) == false));
 COMPILE_TIME_ASSERT(truth, ((1 == 1) == true));

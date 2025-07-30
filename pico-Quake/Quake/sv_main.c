@@ -90,15 +90,13 @@ void SV_Init (void)
 
 	sv.edicts = NULL; // ericw -- sv.edicts switched to use malloc()
 
+	//DMA
 	Cvar_RegisterVariable 	(&sv_maxvelocity);
 	Cvar_RegisterVariable 	(&sv_gravity);
 	Cvar_RegisterVariable 	(&sv_friction);
-	Cvar_SetCallback 	  	(&sv_gravity, Host_Callback_Notify);
-	Cvar_SetCallback 	  	(&sv_friction, Host_Callback_Notify);
 	Cvar_RegisterVariable 	(&sv_edgefriction);
 	Cvar_RegisterVariable 	(&sv_stopspeed);
 	Cvar_RegisterVariable 	(&sv_maxspeed);
-	Cvar_SetCallback 		(&sv_maxspeed, Host_Callback_Notify);
 	Cvar_RegisterVariable 	(&sv_accelerate);
 	Cvar_RegisterVariable 	(&sv_idealpitchscale);
 	Cvar_RegisterVariable 	(&sv_aim);
@@ -106,11 +104,20 @@ void SV_Init (void)
 	Cvar_RegisterVariable 	(&sv_freezenonclients);
 	Cvar_RegisterVariable 	(&sv_altnoclip); //johnfitz
 
+	Cvar_SetCallback 	  	(&sv_gravity, Host_Callback_Notify);
+	Cvar_SetCallback 	  	(&sv_friction, Host_Callback_Notify);
+	Cvar_SetCallback 		(&sv_maxspeed, Host_Callback_Notify);
+
+	//Pre add
 	Cmd_AddCommand ("sv_protocol", &SV_Protocol_f); //johnfitz
 
 	for (i=0 ; i<MAX_MODELS ; i++)
 		sprintf (localmodels[i], "*%i", i);
 
+	sv_protocol = PROTOCOL_NETQUAKE; //Stop gap
+	p = "NetQuake";
+
+	/* Add dynamic method to change from console
 	i = COM_CheckParm ("-protocol");
 	if (i && i < com_argc - 1)
 		sv_protocol = atoi (com_argv[i + 1]);
@@ -128,8 +135,8 @@ void SV_Init (void)
 	default:
 		Sys_Error ("Bad protocol version request %i. Accepted values: %i, %i, %i.",
 				sv_protocol, PROTOCOL_NETQUAKE, PROTOCOL_FITZQUAKE, PROTOCOL_RMQ);
-		return; /* silence compiler */
-	}
+		return;
+	}*/
 	Sys_Printf ("Server using protocol %i (%s)\n", sv_protocol, p);
 }
 
@@ -150,6 +157,7 @@ Make sure the event gets sent to all clients
 */
 void SV_StartParticle (vec3_t org, vec3_t dir, int color, int count)
 {
+	//DMA
 	int		i, v;
 
 	if (sv.datagram.cursize > MAX_DATAGRAM-18)
@@ -242,6 +250,7 @@ void SV_StartSound (edict_t *entity, int channel, const char *sample, int volume
 	if (sv.datagram.cursize > MAX_DATAGRAM-21)
 		return;
 
+	//DMA
 // directed messages go only to the entity the are targeted on
 	MSG_WriteByte (&sv.datagram, svc_sound);
 	MSG_WriteByte (&sv.datagram, field_mask);
@@ -300,6 +309,7 @@ void SV_LocalSound (client_t *client, const char *sample) {
 	if (client->message.cursize > client->message.maxsize-4)
 		return;
 
+	//DMA
 	MSG_WriteByte (&client->message, svc_localsound);
 	MSG_WriteByte (&client->message, field_mask);
 	if (field_mask & SND_LARGESOUND)
@@ -332,6 +342,8 @@ This will be sent on the initial connection and upon each server load.
 */
 void SV_SendServerinfo (client_t *client)
 {
+	//DMA
+
 	const char		**s;
 	char			message[2048];
 	int				i; //johnfitz
@@ -614,7 +626,7 @@ void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
 	VectorAdd (clent->v.origin, clent->v.view_ofs, org);
 	pvs = SV_FatPVS (org, sv.worldmodel);
 
-// send over all entities (excpet the client) that touch the pvs
+// send over all entities (except the client) that touch the pvs
 	ent = NEXT_EDICT(sv.edicts);
 	for (e=1 ; e<sv.num_edicts ; e++, ent = NEXT_EDICT(ent))
 	{
@@ -739,6 +751,9 @@ void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
 	//
 	// write the message
 	//
+
+		//DMA?
+
 		MSG_WriteByte (msg, bits | U_SIGNAL);
 
 		if (bits & U_MOREBITS)
@@ -838,6 +853,7 @@ void SV_WriteClientdataToMessage (edict_t *ent, sizebuf_t *msg)
 	if (ent->v.dmg_take || ent->v.dmg_save)
 	{
 		other = PROG_TO_EDICT(ent->v.dmg_inflictor);
+		//DMA
 		MSG_WriteByte (msg, svc_damage);
 		MSG_WriteByte (msg, ent->v.dmg_save);
 		MSG_WriteByte (msg, ent->v.dmg_take);
@@ -923,6 +939,7 @@ void SV_WriteClientdataToMessage (edict_t *ent, sizebuf_t *msg)
 
 // send the data
 
+	//DMA
 	MSG_WriteByte (msg, svc_clientdata);
 	MSG_WriteShort (msg, bits);
 
@@ -955,6 +972,7 @@ void SV_WriteClientdataToMessage (edict_t *ent, sizebuf_t *msg)
 	if (bits & SU_WEAPON)
 		MSG_WriteByte (msg, SV_ModelIndex(PR_GetString(ent->v.weaponmodel)));
 
+	//DMA
 	MSG_WriteShort (msg, ent->v.health);
 	MSG_WriteByte (msg, ent->v.currentammo);
 	MSG_WriteByte (msg, ent->v.ammo_shells);
@@ -978,6 +996,7 @@ void SV_WriteClientdataToMessage (edict_t *ent, sizebuf_t *msg)
 		}
 	}
 
+	//DMA
 	//johnfitz -- PROTOCOL_FITZQUAKE
 	if (bits & SU_WEAPON2)
 		MSG_WriteByte (msg, SV_ModelIndex(PR_GetString(ent->v.weaponmodel)) >> 8);
@@ -1060,9 +1079,10 @@ void SV_UpdateToReliableMessages (void)
 			{
 				if (!client->active)
 					continue;
+				//DMA
 				MSG_WriteByte (&client->message, svc_updatefrags);
 				MSG_WriteByte (&client->message, i);
-				MSG_WriteShort (&client->message, host_client->edict->v.frags);
+				MSG_WriteShort(&client->message, host_client->edict->v.frags);
 			}
 
 			host_client->old_frags = host_client->edict->v.frags;
@@ -1163,6 +1183,7 @@ void SV_SendClientMessages (void)
 			{
 				if (host_client->message.cursize + 2 < host_client->message.maxsize)
 				{
+					//WriteShort?
 					MSG_WriteByte (&host_client->message, svc_signonnum);
 					MSG_WriteByte (&host_client->message, 2);
 					host_client->sendsignon = PRESPAWN_FLUSH;
@@ -1293,6 +1314,7 @@ void SV_CreateBaseline (void)
 	//
 	// create entity baseline
 	//
+		//DMA
 		VectorCopy (svent->v.origin, svent->baseline.origin);
 		VectorCopy (svent->v.angles, svent->baseline.angles);
 		svent->baseline.frame = svent->v.frame;
@@ -1348,6 +1370,7 @@ void SV_CreateBaseline (void)
 	//
 		SV_ReserveSignonSpace (35);
 
+		//DMA
 		//johnfitz -- PROTOCOL_FITZQUAKE
 		if (bits)
 			MSG_WriteByte (sv.signon, svc_spawnbaseline2);

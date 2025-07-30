@@ -76,6 +76,7 @@ void CL_ClearState (void)
 	if (!sv.active)
 		Host_ClearMemory ();
 
+	//DMA
 // wipe the entire cl structure
 	memset (&cl, 0, sizeof(cl));
 
@@ -119,6 +120,7 @@ void CL_Disconnect (void)
 		if (cls.demorecording)
 			CL_Stop_f ();
 
+		//DMA
 		Con_DPrintf ("Sending clc_disconnect\n");
 		SZ_Clear (&cls.message);
 		MSG_WriteByte (&cls.message, clc_disconnect);
@@ -186,6 +188,7 @@ void CL_SignonReply (void)
 
 	Con_DPrintf ("CL_SignonReply: %i\n", cls.signon);
 
+	//DMA
 	switch (cls.signon)
 	{
 	case 1:
@@ -511,6 +514,7 @@ void CL_RelinkEntities (void)
 		if (ent->effects & EF_BRIGHTFIELD)
 			R_EntityParticles (ent);
 
+		//Fix 'dl->die = cl.time + x;' ?
 		if (ent->effects & EF_MUZZLEFLASH)
 		{
 			vec3_t		fv, rv, uv;
@@ -571,6 +575,7 @@ void CL_RelinkEntities (void)
 			dl->color[2] = 0.25f;
 		}
 
+		//Array dereferencing
 		if (ent->model->flags & EF_GIB)
 			R_RocketTrail (oldorg, ent->origin, 2);
 		else if (ent->model->flags & EF_ZOMGIB)

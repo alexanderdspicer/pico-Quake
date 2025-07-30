@@ -29,17 +29,20 @@ void (*vid_menukeyfn)(int key);
 
 enum m_state_e m_state;
 
+//Add option to change color palette/pinout
 void M_Menu_Main_f (void);
 	void M_Menu_SinglePlayer_f (void);
 		void M_Menu_Load_f (void);
 		void M_Menu_Save_f (void);
-	void M_Menu_MultiPlayer_f (void);
+#ifdef NET_PLAY
+	void M_Menu_MultiPlayer_f (void); 		//Make dependent on "NET_PLAY" macro
 		void M_Menu_Setup_f (void);
 		void M_Menu_Net_f (void);
 		void M_Menu_LanConfig_f (void);
 		void M_Menu_GameOptions_f (void);
 		void M_Menu_Search_f (void);
 		void M_Menu_ServerList_f (void);
+#endif
 	void M_Menu_Options_f (void);
 		void M_Menu_Keys_f (void);
 		void M_Menu_Video_f (void);
@@ -50,13 +53,15 @@ void M_Main_Draw (void);
 	void M_SinglePlayer_Draw (void);
 		void M_Load_Draw (void);
 		void M_Save_Draw (void);
-	void M_MultiPlayer_Draw (void);
+#ifdef NET_PLAY
+	void M_MultiPlayer_Draw (void); 		//Make dependent on "NET_PLAY" macro
 		void M_Setup_Draw (void);
 		void M_Net_Draw (void);
 		void M_LanConfig_Draw (void);
 		void M_GameOptions_Draw (void);
 		void M_Search_Draw (void);
 		void M_ServerList_Draw (void);
+#endif
 	void M_Options_Draw (void);
 		void M_Keys_Draw (void);
 		void M_Video_Draw (void);
@@ -67,13 +72,15 @@ void M_Main_Key (int key);
 	void M_SinglePlayer_Key (int key);
 		void M_Load_Key (int key);
 		void M_Save_Key (int key);
-	void M_MultiPlayer_Key (int key);
+#ifdef NET_PLAY
+	void M_MultiPlayer_Key (int key); 		//Make dependent on "NET_PLAY" macro
 		void M_Setup_Key (int key);
 		void M_Net_Key (int key);
 		void M_LanConfig_Key (int key);
 		void M_GameOptions_Key (int key);
 		void M_Search_Key (int key);
 		void M_ServerList_Key (int key);
+#endif
 	void M_Options_Key (int key);
 		void M_Keys_Key (int key);
 		void M_Video_Key (int key);
@@ -238,8 +245,11 @@ void M_ToggleMenu_f (void)
 /* MAIN MENU */
 
 int	m_main_cursor;
-#define	MAIN_ITEMS	5
-
+#ifndef NET_PLAY
+	#define	MAIN_ITEMS	4
+#else
+	#define MAIN_ITEMS 	5
+#endif
 
 void M_Menu_Main_f (void)
 {
@@ -311,7 +321,9 @@ void M_Main_Key (int key)
 			break;
 
 		case 1:
+#ifdef NET_PLAY
 			M_Menu_MultiPlayer_f ();
+#endif
 			break;
 
 		case 2:
@@ -419,7 +431,7 @@ void M_SinglePlayer_Key (int key)
 
 int		load_cursor;		// 0 < load_cursor < MAX_SAVEGAMES
 
-#define	MAX_SAVEGAMES		20	/* johnfitz -- increased from 12 */
+#define	MAX_SAVEGAMES		12	/* johnfitz -- increased from 12 */ //picoQuake -- was 20
 char	m_filenames[MAX_SAVEGAMES][SAVEGAME_COMMENT_LENGTH+1];
 int		loadable[MAX_SAVEGAMES];
 
@@ -2552,8 +2564,10 @@ void M_Init (void)
 	Cmd_AddCommand ("menu_singleplayer", M_Menu_SinglePlayer_f);
 	Cmd_AddCommand ("menu_load", M_Menu_Load_f);
 	Cmd_AddCommand ("menu_save", M_Menu_Save_f);
+#ifdef NET_PLAY
 	Cmd_AddCommand ("menu_multiplayer", M_Menu_MultiPlayer_f);
 	Cmd_AddCommand ("menu_setup", M_Menu_Setup_f);
+#endif
 	Cmd_AddCommand ("menu_options", M_Menu_Options_f);
 	Cmd_AddCommand ("menu_keys", M_Menu_Keys_f);
 	Cmd_AddCommand ("menu_video", M_Menu_Video_f);
@@ -2607,9 +2621,10 @@ void M_Draw (void)
 		break;
 
 	case m_multiplayer:
+#ifdef NETPLAY
 		M_MultiPlayer_Draw ();
 		break;
-
+#endif
 	case m_setup:
 		M_Setup_Draw ();
 		break;
@@ -2694,6 +2709,7 @@ void M_Keydown (int key)
 		M_Save_Key (key);
 		return;
 
+#ifdef NET_PLAY
 	case m_multiplayer:
 		M_MultiPlayer_Key (key);
 		return;
@@ -2705,6 +2721,23 @@ void M_Keydown (int key)
 	case m_net:
 		M_Net_Key (key);
 		return;
+
+	case m_lanconfig:
+		M_LanConfig_Key (key);
+		return;
+
+	case m_slist:
+		M_ServerList_Key (key);
+		return;
+
+	case m_search:
+		M_Search_Key (key);
+		break;
+
+	case m_gameoptions:
+		M_GameOptions_Key (key);
+		return;
+#endif
 
 	case m_options:
 		M_Options_Key (key);
@@ -2726,20 +2759,7 @@ void M_Keydown (int key)
 		M_Quit_Key (key);
 		return;
 
-	case m_lanconfig:
-		M_LanConfig_Key (key);
-		return;
-
-	case m_gameoptions:
-		M_GameOptions_Key (key);
-		return;
-
-	case m_search:
-		M_Search_Key (key);
-		break;
-
-	case m_slist:
-		M_ServerList_Key (key);
+	default:
 		return;
 	}
 }

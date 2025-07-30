@@ -1,3 +1,4 @@
 *.cmd
 *.lnk
+.vscode
 Tools/

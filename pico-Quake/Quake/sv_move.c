@@ -359,6 +359,7 @@ void SV_NewChaseDir (edict_t *actor, edict_t *enemy, float dist)
 // if a bridge was pulled out from underneath a monster, it may not have
 // a valid standing position at all
 
+	//Just run a check to fix the bottom?
 	if (!SV_CheckBottom (actor))
 		SV_FixCheckBottom (actor);
 

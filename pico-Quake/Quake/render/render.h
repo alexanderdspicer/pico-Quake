@@ -48,50 +48,50 @@ typedef struct efrag_s
 
 typedef struct entity_s
 {
-	qboolean				forcelink;		// model changed
+	qboolean				forcelink;		// model changed					//1
 
-	int						update_type;
+	int						update_type;										//4
 
-	entity_state_t			baseline;		// to fill in defaults in updates
+	entity_state_t			baseline;		// to fill in defaults in updates	//24
 
-	double					msgtime;		// time of last update
-	vec3_t					msg_origins[2];	// last two updates (0 is newest)
-	vec3_t					origin;
-	vec3_t					msg_angles[2];	// last two updates (0 is newest)
-	vec3_t					angles;
-	struct qmodel_s			*model;			// NULL = no model
-	struct efrag_s			*efrag;			// linked list of efrags
-	int						frame;
-	float					syncbase;		// for client-side animations
-	byte					*colormap;
-	int						effects;		// light, particles, etc
-	int						skinnum;		// for Alias models
-	int						visframe;		// last frame this entity was
+	double					msgtime;		// time of last update				//4
+	vec3_t					msg_origins[2];	// last two updates (0 is newest)	//12
+	vec3_t					origin;												//6
+	vec3_t					msg_angles[2];	// last two updates (0 is newest)	//12
+	vec3_t					angles;												//6
+	struct qmodel_s			*model;			// NULL = no model					//4
+	struct efrag_s			*efrag;			// linked list of efrags			//4
+	int						frame;												//4
+	float					syncbase;		// for client-side animations		//2
+	byte					*colormap;											//4
+	int						effects;		// light, particles, etc			//4
+	int						skinnum;		// for Alias models					//4
+	int						visframe;		// last frame this entity was		//4
 											//  found in an active leaf
 
-	int						dlightframe;	// dynamic lighting
-	int						dlightbits;
+	int						dlightframe;	// dynamic lighting					//4
+	int						dlightbits;											//4
 
 // FIXME: could turn these into a union
-	struct mnode_s			*topnode;		// for bmodels, first world node
+	struct mnode_s			*topnode;		// for bmodels, first world node	//4
 											//  that splits bmodel, or NULL if
 											//  not split
 
-	byte					alpha;			//johnfitz -- alpha
-	byte					scale;
-	byte					lerpflags;		//johnfitz -- lerping
-	float					lerpstart;		//johnfitz -- animation lerping
-	float					lerptime;		//johnfitz -- animation lerping
-	float					lerpfinish;		//johnfitz -- lerping -- server sent us a more accurate interval, use it instead of 0.1
-	short					previouspose;	//johnfitz -- animation lerping
-	short					currentpose;	//johnfitz -- animation lerping
+	byte					alpha;			//johnfitz -- alpha					//1
+	byte					scale;												//1
+	byte					lerpflags;		//johnfitz -- lerping				//1
+	float					lerpstart;		//johnfitz -- animation lerping		//2
+	float					lerptime;		//johnfitz -- animation lerping		//2
+	float					lerpfinish;		//johnfitz -- lerping -- server sent us a more accurate interval, use it instead of 0.1	//2
+	short					previouspose;	//johnfitz -- animation lerping		//2
+	short					currentpose;	//johnfitz -- animation lerping		//2
 //	short					futurepose;		//johnfitz -- animation lerping
-	float					movelerpstart;	//johnfitz -- transform lerping
-	vec3_t					previousorigin;	//johnfitz -- transform lerping
-	vec3_t					currentorigin;	//johnfitz -- transform lerping
-	vec3_t					previousangles;	//johnfitz -- transform lerping
-	vec3_t					currentangles;	//johnfitz -- transform lerping
-} entity_t;
+	float					movelerpstart;	//johnfitz -- transform lerping		//2
+	vec3_t					previousorigin;	//johnfitz -- transform lerping		//6
+	vec3_t					currentorigin;	//johnfitz -- transform lerping		//6
+	vec3_t					previousangles;	//johnfitz -- transform lerping		//6
+	vec3_t					currentangles;	//johnfitz -- transform lerping		//6
+} entity_t;																		//146 Bytes (Surface level)
 
 // !!! if this is changed, it must be changed in asm_draw.h too !!!
 typedef struct

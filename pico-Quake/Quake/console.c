@@ -333,6 +333,7 @@ void Con_Init (void)
 	Cvar_RegisterVariable (&con_notifytime);
 	Cvar_RegisterVariable (&con_logcenterprint); //johnfitz
 
+	//Pre add
 	Cmd_AddCommand ("toggleconsole", Con_ToggleConsole_f);
 	Cmd_AddCommand ("messagemode", Con_MessageMode_f);
 	Cmd_AddCommand ("messagemode2", Con_MessageMode2_f);

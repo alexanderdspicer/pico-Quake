@@ -90,12 +90,6 @@ void PerpendicularVector( vec3_t dst, const vec3_t src )
 
 float	anglemod(float a)
 {
-#if 0
-	if (a >= 0)
-		a -= 360*(int)(a/360);
-	else
-		a += 360*( 1 + (int)(-a/360) );
-#endif
 	a = (360.0/65536) * ((int)(a*(65536/360.0)) & 65535);
 	return a;
 }
@@ -114,19 +108,6 @@ int BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, mplane_t *p)
 	int		xneg, yneg, zneg;
 	int		sides;
 
-#if 0	// this is done by the BOX_ON_PLANE_SIDE macro before calling this
-		// function
-// fast axial cases
-	if (p->type < 3)
-	{
-		if (p->dist <= emins[p->type])
-			return 1;
-		if (p->dist >= emaxs[p->type])
-			return 2;
-		return 3;
-	}
-#endif
-
 	xneg = p->signbits & 1;
 	yneg = (p->signbits >> 1) & 1;
 	zneg = (p->signbits >> 2) & 1;
@@ -141,48 +122,16 @@ int BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, mplane_t *p)
 	if (p->signbits & ~7)
 		Sys_Error ("BoxOnPlaneSide:  Bad signbits");
 
-#if 0
-	int		i;
-	vec3_t	corners[2];
-
-	for (i=0 ; i<3 ; i++)
-	{
-		if (plane->normal[i] < 0)
-		{
-			corners[0][i] = emins[i];
-			corners[1][i] = emaxs[i];
-		}
-		else
-		{
-			corners[1][i] = emins[i];
-			corners[0][i] = emaxs[i];
-		}
-	}
-	dist = DotProduct (plane->normal, corners[0]) - plane->dist;
-	dist2 = DotProduct (plane->normal, corners[1]) - plane->dist;
-	sides = 0;
-	if (dist1 >= 0)
-		sides = 1;
-	if (dist2 < 0)
-		sides |= 2;
-#endif
-
 	sides = 0;
 	if (dist1 >= p->dist)
 		sides = 1;
 	if (dist2 < p->dist)
 		sides |= 2;
 
-#ifdef PARANOID
-	if (sides == 0)
-		Sys_Error ("BoxOnPlaneSide: sides==0");
-#endif
-
 	return sides;
 }
 
 //johnfitz -- the opposite of AngleVectors.  this takes forward and generates pitch yaw roll
-//TODO: take right and up vectors to properly set yaw and roll
 void VectorAngles (const vec3_t forward, vec3_t angles)
 {
 	vec3_t temp;
@@ -237,33 +186,6 @@ void VectorMA (vec3_t veca, float scale, vec3_t vecb, vec3_t vecc)
 	vecc[0] = veca[0] + scale*vecb[0];
 	vecc[1] = veca[1] + scale*vecb[1];
 	vecc[2] = veca[2] + scale*vecb[2];
-}
-
-
-vec_t _DotProduct (vec3_t v1, vec3_t v2)
-{
-	return v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2];
-}
-
-void _VectorSubtract (vec3_t veca, vec3_t vecb, vec3_t out)
-{
-	out[0] = veca[0]-vecb[0];
-	out[1] = veca[1]-vecb[1];
-	out[2] = veca[2]-vecb[2];
-}
-
-void _VectorAdd (vec3_t veca, vec3_t vecb, vec3_t out)
-{
-	out[0] = veca[0]+vecb[0];
-	out[1] = veca[1]+vecb[1];
-	out[2] = veca[2]+vecb[2];
-}
-
-void _VectorCopy (vec3_t in, vec3_t out)
-{
-	out[0] = in[0];
-	out[1] = in[1];
-	out[2] = in[2];
 }
 
 void CrossProduct (vec3_t v1, vec3_t v2, vec3_t cross)
@@ -396,15 +318,6 @@ void FloorDivMod (double numer, double denom, int *quotient,
 {
 	int		q, r;
 	double	x;
-
-#ifndef PARANOID
-	if (denom <= 0.0)
-		Sys_Error ("FloorDivMod: bad denominator %f\n", denom);
-
-//	if ((floor(numer) != numer) || (floor(denom) != denom))
-//		Sys_Error ("FloorDivMod: non-integer numer or denom %f %f\n",
-//				numer, denom);
-#endif
 
 	if (numer >= 0.0)
 	{

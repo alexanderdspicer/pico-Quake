@@ -52,7 +52,6 @@ typedef enum
 #define	OFS_PARM7		25
 #define	RESERVED_OFS	28
 
-
 enum
 {
 	OP_DONE,

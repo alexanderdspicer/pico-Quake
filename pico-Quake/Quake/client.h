@@ -25,6 +25,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // client.h
 
+#include "q_stdinc.h"
+
 typedef struct
 {
 	int		length;
@@ -35,17 +37,17 @@ typedef struct
 
 typedef struct
 {
-	char	name[MAX_SCOREBOARDNAME];
-	float	entertime;
-	int		frags;
-	int		colors;			// two 4 bit fields
-	byte	translations[VID_GRADES*256];
+	char		name[MAX_SCOREBOARDNAME];
+	float		entertime;
+	int			frags;
+	uint8_t		colors;			// two 4 bit fields //was type 'int'
+	byte		translations[VID_GRADES*256];
 } scoreboard_t;
 
 typedef struct
 {
-	int		destcolor[3];
-	int		percent;		// 0-256
+	int			destcolor[3];
+	uint8_t		percent;		// 0-256 //picoQuake -- new cap 255
 } cshift_t;
 
 #define	CSHIFT_CONTENTS	0
@@ -54,14 +56,13 @@ typedef struct
 #define	CSHIFT_POWERUP	3
 #define	NUM_CSHIFTS		4
 
-#define	NAME_LENGTH	64
-
+#define	NAME_LENGTH		64
 
 //
 // client_state_t should hold all pieces of the client state
 //
 
-#define	SIGNONS		4			// signon messages to receive before connected
+#define	SIGNONS			4			// signon messages to receive before connected
 
 #define	MAX_DLIGHTS		64 //johnfitz -- was 32
 typedef struct
@@ -89,10 +90,11 @@ typedef struct
 #define	MAX_DEMOS		8
 #define	MAX_DEMONAME	16
 
+//Make 8-bit
 typedef enum {
-ca_dedicated, 		// a dedicated server with no ability to start a client
-ca_disconnected, 	// full screen console with no connection
-ca_connected		// valid netcon, talking to a server
+	ca_dedicated, 		// a dedicated server with no ability to start a client
+	ca_disconnected, 	// full screen console with no connection
+	ca_connected		// valid netcon, talking to a server
 } cactive_t;
 
 //
@@ -101,37 +103,38 @@ ca_connected		// valid netcon, talking to a server
 //
 typedef struct
 {
-	cactive_t	state;
+	cactive_t	state;															//1
 
 // personalization data sent to server
-	char		spawnparms[MAX_MAPSTRING];	// to restart a level
+	char		spawnparms[MAX_MAPSTRING];	// to restart a level				//2048
 
 // demo loop control
-	int		demonum;		// -1 = don't play demos
-	char		demos[MAX_DEMOS][MAX_DEMONAME];	// when not playing
+	int			demonum;		// -1 = don't play demos						//4
+	char		demos[MAX_DEMOS][MAX_DEMONAME];	// when not playing				//128
 
+	//Bit fields??
 // demo recording info must be here, because record is started before
 // entering a map (and clearing client_state_t)
-	qboolean	demorecording;
-	qboolean	demoplayback;
+	qboolean	demorecording;													//1
+	qboolean	demoplayback;													//1
 
 // did the user pause demo playback? (separate from cl.paused because we don't
 // want a svc_setpause inside the demo to actually pause demo playback).
-	qboolean	demopaused;
+	qboolean	demopaused;														//1
 
-	qboolean	timedemo;
-	int		forcetrack;		// -1 = use normal cd track
-	FILE		*demofile;
-	int		td_lastframe;		// to meter out one message a frame
-	int		td_startframe;		// host_framecount at start
-	float		td_starttime;		// realtime at second frame of timedemo
+	qboolean	timedemo;														//1
+	int			forcetrack;		// -1 = use normal cd track						//4
+	FILE		*demofile;														//4
+	int			td_lastframe;		// to meter out one message a frame			//4
+	int			td_startframe;		// host_framecount at start					//4
+	float		td_starttime;		// realtime at second frame of timedemo		//2
 
 // connection information
-	int		signon;			// 0 to SIGNONS
-	struct qsocket_s	*netcon;
-	sizebuf_t	message;		// writing buffer to send to server
+	int			signon;			// 0 to SIGNONS									//4
+	struct qsocket_s	*netcon;												//4
+	sizebuf_t	message;		// writing buffer to send to server				//14
 
-} client_static_t;
+} client_static_t;																//2,225 Bytes (Surface level)
 
 extern client_static_t	cls;
 
@@ -141,90 +144,90 @@ extern client_static_t	cls;
 //
 typedef struct
 {
-	int			movemessages;	// since connecting to this server
+	int			movemessages;	// since connecting to this server				//4
 								// throw out the first couple, so the player
 								// doesn't accidentally do something the
 								// first frame
-	usercmd_t	cmd;			// last command sent to the server
+	usercmd_t	cmd;			// last command sent to the server				//12
 
 // information for local display
-	int			stats[MAX_CL_STATS];	// health, etc
-	int			items;			// inventory bit flags
-	float	item_gettime[32];	// cl.time of aquiring item, for blinking
-	float		faceanimtime;	// use anim frame if cl.time < this
+	int			stats[MAX_CL_STATS];	// health, etc							//128
+	int			items;			// inventory bit flags							//4
+	float		item_gettime[32];	// cl.time of aquiring item, for blinking	//64
+	float		faceanimtime;	// use anim frame if cl.time < this				//2
 
-	cshift_t	cshifts[NUM_CSHIFTS];	// color shifts for damage, powerups
-	cshift_t	prev_cshifts[NUM_CSHIFTS];	// and content types
+	cshift_t	cshifts[NUM_CSHIFTS];	// color shifts for damage, powerups	//52
+	cshift_t	prev_cshifts[NUM_CSHIFTS];	// and content types				//52
 
 // the client maintains its own idea of view angles, which are
 // sent to the server each frame.  The server sets punchangle when
 // the view is temporarliy offset, and an angle reset commands at the start
 // of each level and after teleporting.
-	vec3_t		mviewangles[2];	// during demo playback viewangles is lerped
+	vec3_t		mviewangles[2];	// during demo playback viewangles is lerped	//12
 								// between these
-	vec3_t		viewangles;
+	vec3_t		viewangles;														//6
 
-	vec3_t		mvelocity[2];	// update by server, used for lean+bob
+	vec3_t		mvelocity[2];	// update by server, used for lean+bob			//12
 								// (0 is newest)
-	vec3_t		velocity;		// lerped between mvelocity[0] and [1]
+	vec3_t		velocity;		// lerped between mvelocity[0] and [1]			//6
 
-	vec3_t		punchangle;		// temporary offset
+	vec3_t		punchangle;		// temporary offset								//6
 
 // pitch drifting vars
-	float		idealpitch;
-	float		pitchvel;
-	qboolean	nodrift;
-	float		driftmove;
-	double		laststop;
+	float		idealpitch;														//2
+	float		pitchvel;														//2
+	qboolean	nodrift;														//1
+	float		driftmove;														//2
+	double		laststop;														//4
 
-	float		viewheight;
-	float		crouch;			// local amount for smoothing stepups
+	float		viewheight;														//2
+	float		crouch;			// local amount for smoothing stepups			//2
 
-	qboolean	paused;			// send over by server
-	qboolean	onground;
-	qboolean	inwater;
+	qboolean	paused;			// send over by server							//1
+	qboolean	onground;														//1
+	qboolean	inwater;														//1
 
-	int			intermission;	// don't change view angle, full screen, etc
-	int			completed_time;	// latched at intermission start
+	int			intermission;	// don't change view angle, full screen, etc	//4
+	int			completed_time;	// latched at intermission start				//4
 
-	double		mtime[2];		// the timestamp of last two messages
-	double		time;			// clients view of time, should be between
+	double		mtime[2];		// the timestamp of last two messages			//4
+	double		time;			// clients view of time, should be between		//4
 								// servertime and oldservertime to generate
 								// a lerp point for other data
-	double		oldtime;		// previous cl.time, time-oldtime is used
+	double		oldtime;		// previous cl.time, time-oldtime is used		//4
 								// to decay light values and smooth step ups
 
 
-	float		last_received_message;	// (realtime) for net trouble icon
+	float		last_received_message;	// (realtime) for net trouble icon		//2
 
 //
 // information that is static for the entire time connected to a server
 //
-	struct qmodel_s		*model_precache[MAX_MODELS];
-	struct sfx_s		*sound_precache[MAX_SOUNDS];
+	struct qmodel_s		*model_precache[MAX_MODELS];							//4
+	struct sfx_s		*sound_precache[MAX_SOUNDS];							//4
 
-	char		mapname[128];
-	char		levelname[128];	// for display on solo scoreboard //johnfitz -- was 40.
-	int			viewentity;		// cl_entitites[cl.viewentity] = player
-	int			maxclients;
-	int			gametype;
+	char		mapname[128];													//128
+	char		levelname[40];	// for display on solo scoreboard //johnfitz -- was 40. //picoQuake was 128		//40
+	int			viewentity;		// cl_entitites[cl.viewentity] = player			//4
+	int			maxclients;														//4
+	int			gametype;														//4
 
 // refresh related state
-	struct qmodel_s	*worldmodel;	// cl_entitites[0].model
-	struct efrag_s	*free_efrags;
-	int			num_efrags;
-	int			num_entities;	// held in cl_entities array
-	int			num_statics;	// held in cl_staticentities array
-	entity_t	viewent;			// the gun model
+	struct qmodel_s	*worldmodel;	// cl_entitites[0].model					//4
+	struct efrag_s	*free_efrags;												//4
+	int			num_efrags;														//4
+	int			num_entities;	// held in cl_entities array					//4
+	int			num_statics;	// held in cl_staticentities array				//4
+	entity_t	viewent;			// the gun model							//146	
 
-	int			cdtrack, looptrack;	// cd audio
+	int			cdtrack, looptrack;	// cd audio									//4
 
 // frag scoreboard
-	scoreboard_t	*scores;		// [cl.maxclients]
+	scoreboard_t	*scores;		// [cl.maxclients]							//4
 
-	unsigned	protocol; //johnfitz
-	unsigned	protocolflags;
-} client_state_t;
+	unsigned	protocol; //johnfitz											//4
+	unsigned	protocolflags;													//4
+} client_state_t;																//770 Bytes (Surface level)
 
 
 //
@@ -266,9 +269,8 @@ extern	cvar_t	m_side;
 
 extern	cvar_t	cl_startdemos;
 
-
-#define	MAX_TEMP_ENTITIES	256		//johnfitz -- was 64
-#define	MAX_STATIC_ENTITIES	4096	//ericw -- was 512	//johnfitz -- was 128
+#define	MAX_TEMP_ENTITIES	64		//johnfitz -- was 64 //picoQuake -- was 256
+#define	MAX_STATIC_ENTITIES	128		//ericw -- was 512	//johnfitz -- was 128 //picoQuake -- was 4096
 #define	MAX_VISEDICTS		4096	// larger, now we support BSP2
 
 extern	client_state_t	cl;

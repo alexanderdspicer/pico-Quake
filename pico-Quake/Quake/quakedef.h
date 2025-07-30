@@ -37,10 +37,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	QUAKESPASM_VER_SUFFIX		// optional version suffix string literal like "-beta1"
 #endif
 
-#define	PICO_QUAKE_VERSION		0.96
+#define	PICO_QUAKE_VERSION		0.00
 #define	PICO_QUAKE_VER_PATCH	1	// helper to print a string like 0.94.7
 #ifndef	PICO_QUAKE_VER_SUFFIX
-#define	PICO_QUAKE_VER_SUFFIX		// optional version suffix string literal like "-beta1"
+#define	PICO_QUAKE_VER_SUFFIX	"-alpha1"	// optional version suffix string literal like "-beta1"
 #endif
 
 #define	QS_STRINGIFY_(x)	#x
@@ -51,6 +51,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //define	PARANOID			// speed sapping error checking
 
+//TO REMOVE
 #define	GAMENAME	"id1"		// directory to look in by default
 
 #include "q_stdinc.h"
@@ -60,8 +61,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define Q_UNUSED(x)	(x = x)	// for pesky compiler / lint warnings
 
-#define	MINIMUM_MEMORY	0x550000
-#define	MINIMUM_MEMORY_LEVELPAK	(MINIMUM_MEMORY + 0x100000)
+//#define	MINIMUM_MEMORY	0x550000 //Laugh in the face of danger
+//#define	MINIMUM_MEMORY_LEVELPAK	(MINIMUM_MEMORY + 0x100000)
 
 #define MAX_NUM_ARGVS	50
 
@@ -69,7 +70,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	PITCH		0
 
 // left / right
-#define	YAW		1
+#define	YAW			1
 
 // fall over
 #define	ROLL		2
@@ -81,20 +82,26 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define	DIST_EPSILON	(0.03125)	// 1/32 epsilon to keep floating point happy (moved from world.c)
 
-#define	MAX_MSGLEN	64000		// max length of a reliable message //ericw -- was 32000
-#define	MAX_DATAGRAM	64000		// max length of unreliable message //johnfitz -- was 1024
+#define	MAX_MSGLEN		16000		// max length of a reliable message //ericw -- was 32000 //was 64000
+									//picoQuake -- now 16000
+#define	MAX_DATAGRAM	1024		// max length of unreliable message //johnfitz -- was 1024 //was 64000
+									//picoQuake -- now 1024
 
 #define	DATAGRAM_MTU	1400		// johnfitz -- actual limit for unreliable messages to nonlocal clients
 
 //
 // per-level limits
 //
-#define	MIN_EDICTS	256		// johnfitz -- lowest allowed value for max_edicts cvar
-#define	MAX_EDICTS	32000		// johnfitz -- highest allowed value for max_edicts cvar
+#define	MIN_EDICTS	256			// johnfitz -- lowest allowed value for max_edicts cvar
+#define	MAX_EDICTS	8192		// johnfitz -- highest allowed value for max_edicts cvar
 						// ents past 8192 can't play sounds in the standard protocol
+								//picoQuake -- now 8192
 #define	MAX_LIGHTSTYLES	64
-#define	MAX_MODELS	2048		// johnfitz -- was 256
-#define	MAX_SOUNDS	2048		// johnfitz -- was 256
+#define	MAX_MODELS	256			// johnfitz -- was 256 //was 1024
+								//picoQuake -- now 256
+
+#define	MAX_SOUNDS	256			// johnfitz -- was 256 //was 1024
+								//picoQUake -- now 256
 
 #define	SAVEGAME_COMMENT_LENGTH	39
 
@@ -104,16 +111,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // stats are integers communicated to the client by the server
 //
 #define	MAX_CL_STATS		32
-#define	STAT_HEALTH		0
-#define	STAT_FRAGS		1
-#define	STAT_WEAPON		2
-#define	STAT_AMMO		3
-#define	STAT_ARMOR		4
+#define	STAT_HEALTH			0
+#define	STAT_FRAGS			1
+#define	STAT_WEAPON			2
+#define	STAT_AMMO			3
+#define	STAT_ARMOR			4
 #define	STAT_WEAPONFRAME	5
-#define	STAT_SHELLS		6
-#define	STAT_NAILS		7
+#define	STAT_SHELLS			6
+#define	STAT_NAILS			7
 #define	STAT_ROCKETS		8
-#define	STAT_CELLS		9
+#define	STAT_CELLS			9
 #define	STAT_ACTIVEWEAPON	10
 #define	STAT_TOTALSECRETS	11
 #define	STAT_TOTALMONSTERS	12
@@ -122,56 +129,56 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // stock defines
 //
-#define	IT_SHOTGUN		1
+#define	IT_SHOTGUN			1
 #define	IT_SUPER_SHOTGUN	2
-#define	IT_NAILGUN		4
+#define	IT_NAILGUN			4
 #define	IT_SUPER_NAILGUN	8
 #define	IT_GRENADE_LAUNCHER	16
 #define	IT_ROCKET_LAUNCHER	32
 #define	IT_LIGHTNING		64
 #define	IT_SUPER_LIGHTNING	128
-#define	IT_SHELLS		256
-#define	IT_NAILS		512
-#define	IT_ROCKETS		1024
-#define	IT_CELLS		2048
-#define	IT_AXE			4096
-#define	IT_ARMOR1		8192
-#define	IT_ARMOR2		16384
-#define	IT_ARMOR3		32768
+#define	IT_SHELLS			256
+#define	IT_NAILS			512
+#define	IT_ROCKETS			1024
+#define	IT_CELLS			2048
+#define	IT_AXE				4096
+#define	IT_ARMOR1			8192
+#define	IT_ARMOR2			16384
+#define	IT_ARMOR3			32768
 #define	IT_SUPERHEALTH		65536
-#define	IT_KEY1			131072
-#define	IT_KEY2			262144
+#define	IT_KEY1				131072
+#define	IT_KEY2				262144
 #define	IT_INVISIBILITY		524288
 #define	IT_INVULNERABILITY	1048576
-#define	IT_SUIT			2097152
-#define	IT_QUAD			4194304
-#define	IT_SIGIL1		(1<<28)
-#define	IT_SIGIL2		(1<<29)
-#define	IT_SIGIL3		(1<<30)
-#define	IT_SIGIL4		(1<<31)
+#define	IT_SUIT				2097152
+#define	IT_QUAD				4194304
+#define	IT_SIGIL1			(1<<28)
+#define	IT_SIGIL2			(1<<29)
+#define	IT_SIGIL3			(1<<30)
+#define	IT_SIGIL4			(1<<31)
 
 //===========================================
 //rogue changed and added defines
 
-#define	RIT_SHELLS		128
-#define	RIT_NAILS		256
-#define	RIT_ROCKETS		512
-#define	RIT_CELLS		1024
-#define	RIT_AXE			2048
-#define	RIT_LAVA_NAILGUN	4096
+#define	RIT_SHELLS				128
+#define	RIT_NAILS				256
+#define	RIT_ROCKETS				512
+#define	RIT_CELLS				1024
+#define	RIT_AXE					2048
+#define	RIT_LAVA_NAILGUN		4096
 #define	RIT_LAVA_SUPER_NAILGUN	8192
-#define	RIT_MULTI_GRENADE	16384
-#define	RIT_MULTI_ROCKET	32768
-#define	RIT_PLASMA_GUN		65536
-#define	RIT_ARMOR1		8388608
-#define	RIT_ARMOR2		16777216
-#define	RIT_ARMOR3		33554432
-#define	RIT_LAVA_NAILS		67108864
-#define	RIT_PLASMA_AMMO		134217728
-#define	RIT_MULTI_ROCKETS	268435456
-#define	RIT_SHIELD		536870912
-#define	RIT_ANTIGRAV		1073741824
-#define	RIT_SUPERHEALTH		2147483648
+#define	RIT_MULTI_GRENADE		16384
+#define	RIT_MULTI_ROCKET		32768
+#define	RIT_PLASMA_GUN			65536
+#define	RIT_ARMOR1				8388608
+#define	RIT_ARMOR2				16777216
+#define	RIT_ARMOR3				33554432
+#define	RIT_LAVA_NAILS			67108864
+#define	RIT_PLASMA_AMMO			134217728
+#define	RIT_MULTI_ROCKETS		268435456
+#define	RIT_SHIELD				536870912
+#define	RIT_ANTIGRAV			1073741824
+#define	RIT_SUPERHEALTH			2147483648
 
 //MED 01/04/97 added hipnotic defines
 //===========================================
@@ -194,14 +201,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 typedef struct
 {
-	const char *basedir;
-	const char *userdir;	// user's directory on UNIX platforms.
+	//const char *basedir;
+	//const char *userdir;	// user's directory on UNIX platforms.
 				// if user directories are enabled, basedir
 				// and userdir will point to different
 				// memory locations, otherwise to the same.
-	int			argc;
-	char		**argv;
-	void		*membase;
+	//int			argc;
+	//char		**argv;
+	//void		*membase;
 	int			memsize;
 	int			numcpus;
 	int			errstate;
@@ -209,7 +216,7 @@ typedef struct
 
 #include "common.h"
 #include "bspfile.h"
-#include "sys.h"
+//#include "sys.h"
 #include "zone.h"
 #include "mathlib.h"
 #include "cvar.h"
