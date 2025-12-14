@@ -27,7 +27,7 @@
 #ifndef ARCHDEFS_H
 #define ARCHDEFS_H
 
-#define	PLATFORM_STRING	"Unknown"
+#define	PLATFORM_STRING	"picoQuake"
 
 #endif  /* ARCHDEFS_H */
 

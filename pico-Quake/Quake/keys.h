@@ -123,13 +123,29 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // SDL2 game controller keys
 
-#define	MAX_KEYS	97
+#define	MAX_KEYS	97      //picoQuake -- could be 220 for full support of extended HID keyboard range
+                                        // but due to memory considerations, it only covers the basic keys
 
 #define	MAXCMDLINE	256
 
-typedef enum {key_game, key_console, key_message, key_menu} keydest_t;
+//typedef enum {key_game, key_console, key_message, key_menu} keydest_t;
+//              0         1            2            3
 
-extern keydest_t	key_dest;
+//#define KEY_GAME    0
+//#define KEY_CONSOLE 1
+//#define KEY_MESSAGE 2
+//#define KEY_MENU    3
+
+// Instead of predefined 'key_dest's, have some seperation between church and state and employ callbacks
+// such that this base code is more "serviceable" and operates much as an OS would, which allows for
+// addons, mods, etc (which is ambitious for a project which I may never finish (or be impossible))
+
+#define MAX_KEY_DESTS 5; //Could be more, but for memory considerations, just keep it at 5
+extern uint8_t	    key_dest;
+extern void         (*key_press_cbs[MAX_KEY_DESTS])(void*, uint8_t);
+extern void         (*key_upres_cbs[MAX_KEY_DESTS])(void*, uint8_t);
+extern qboolean     (*key_texte_cbs[MAX_KEY_DESTS])( void );
+
 extern char	        *keybindings[MAX_KEYS];
 
 #define	CMDLINES    16      //picoQuake -- was 64
@@ -140,7 +156,7 @@ extern	int		    key_linepos;
 extern	int		    key_insert;
 extern	double		key_blinktime;
 
-extern	qboolean	chat_team;
+//extern	qboolean	chat_team;
 
 void Key_Init (void);
 void Key_ClearStates (void);
@@ -148,26 +164,31 @@ void Key_UpdateForDest (void);
 
 void Key_BeginInputGrab (void);
 void Key_EndInputGrab (void);
-void Key_GetGrabbedInput (int *lastkey, int *lastchar);
+void Key_GetGrabbedInput (int *lastkey);
 
-void Key_Event (int key, qboolean down);
+typedef struct {
+    uint8_t*    array;
+    uint8_t     bit_field;
+    uint8_t     length;
+} keys_t;
 
-//Code moved to 'Key_Event'
-//void Key_EventWithKeycode (int key, qboolean down, int keycode);
-
-void Char_Event (int key);
+void Key_Event (keys_t *next);
 qboolean Key_TextEntry (void);
 
 void Key_SetBinding (int keynum, const char *binding);
 const char *Key_KeynumToString (int16_t keynum);
 void Key_WriteBindings (FILE *f);
 
+/* move out to the 'client.c' or 'host.c' files
 void Key_EndChat (void);
 const char *Key_GetChatBuffer (void);
 int Key_GetChatMsgLen (void);
+*/
 
+/* Move out to console.c
 void History_Init (void);
 void History_Shutdown (void);
+*/
 
 #endif	/* _QUAKE_KEYS_H */
 

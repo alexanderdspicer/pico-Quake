@@ -3,14 +3,14 @@
 
 #include <stdio.h>
 
+// With help from: https://github.com/raspberrypi/pico-examples/tree/master/usb/device/dev_lowlevel
+
 // Pico
 #include "pico/stdlib.h"
 
 // For memcpy
 //#include <string.h>
 
-// Include descriptor struct definitions
-#include "usb_common.h"
 // USB register definitions from pico-sdk
 #include "hardware/regs/usb.h"
 // USB hardware struct definitions from pico-sdk
@@ -19,8 +19,6 @@
 #include "hardware/irq.h"
 // For resetting the USB controller
 #include "hardware/resets.h"
-// Device descriptors
-#include "dev_lowlevel.h"
 
 #define _BSIZE 0b00000011
 #define _BTYPE 0b00001100
@@ -81,7 +79,7 @@ typedef enum {
 typedef enum {
     NUM_LOCK    = 0x01,
     CAPS_LOCK   = 0x02,
-    SCROLL_LOCK = 0x03      //Killing me that this seems to be 0x04, despite the specification indicating 0x03
+    SCROLL_LOCK = 0x04      //0x04 is 0b0..100, so the specification was right, I just didnt think
 } led_e;
 
 typedef enum {
@@ -101,13 +99,56 @@ typedef enum {
 //Linked list of devices
 static usb_address_t* devices; // = 0x?????
 
-void USB_init() {
+void USB_init( void ) {
+    // set up VBUS detection
+    // set as a device for 10 seconds
+    // if not pluuged into a device by this point, then switch to host mode
+    // set irq to handle new devices when they come
 
+    // Enable USB controller, which defaults to device mode
+    usb_hw->main_ctrl = USB_MAIN_CTRL_CONTROLLER_EN_BITS;
+    // Set device "mode" to full speed
+    usb_hw->sie_ctrl = USB_SIE_CTRL_PULLUP_EN_BITS;
+
+    irq_set_exclusive_handler(USBCTRL_IRQ, &USB_device_init);
+    irq_set_enabled(USBCTRL_IRQ, true);
+    // When the pico is connected, or when a setup request is recieved, run the isr
+    usb_hw->inte = USB_INTE_SETUP_REQ_BITS | USB_INTE_DEV_CONN_DIS_BITS;
+
+    // Set an alarm and isr for 10 seconds, and when these seconds have passed, switch to host mode
+    // Use 'ALARM_0' by setting the first bit of 'INTE' (the zeroth bit)
+    timer_hw->inte = 1;
+    // Set irq handler for alarm irq to switch the USB type to host
+    irq_set_exclusive_handler(TIMER_IRQ_0, transfer_type);
+    irq_set_enabled(TIMER_IRQ_0, true);
+
+    // Set 'ALARM_0' to 10 seconds, or 10 million microseconds
+    timer_hw->alarm[0] = 10000000;
 }
 
-void* USB_configure(usb_address_t address) {
-
+static void transfer_type ( void ) {
+    irq_set_enabled(TIMER_IRQ_0, false);
+    irq_set_enabled(USBCTRL_IRQ, false);
+    USB_host_init();
 }
+
+void USB_device_init( void ) {
+    irq_set_enabled(TIMER_IRQ_0, false);
+    irq_set_enabled(USBCTRL_IRQ, false);
+}
+
+void USB_host_init( void ) {
+    // Set the pico to now be a USB host
+    usb_hw->main_ctrl = USB_MAIN_CTRL_HOST_NDEVICE;
+
+    // Reset the bus, just to be sure, and enable pulldown resistors for fullspeed
+    // Enable keep alive (for archaic peripherals), Preamble, and SOF generation
+    usb_hw->sie_ctrl = USB_SIE_CTRL_RESET_BUS | USB_SIE_CTRL_PULLDOWN_EN_BITS |
+                       USB_SIE_CTRL_KEEP_ALIVE_EN | USB_SIE_CTRL_SOF_EN | USB_SIE_CTRL_PREAMBLE_EN;
+
+    // Set to full speed
+    usb_hw->sie_status = 2 << USB_SIE_STATUS_SPEED_LSB;
+} 
 
 //Offset 'data' by 4, and assert that the first 4 bytes are '05 01 09 xx', where the final byte
 //indicates the type of device
@@ -122,7 +163,7 @@ hid_block_t* USB_hid_parse_report(uint8_t* data, uint32_t length) {
         if(next_block) {
             hid_block_t* temp = new_block;
             new_block = malloc(sizeof(hid_block_t));
-            new_block->next = temp;
+            new_block->prev = temp;
             next_block = false;
         }
         uint8_t header_length = data[i] & _BSIZE;
@@ -157,10 +198,10 @@ hid_block_t* USB_hid_parse_report(uint8_t* data, uint32_t length) {
                 case _OUTPUT_TAG:
                     z=0;
                     if(!(new_block->Report_Size)) {
-                        new_block->Report_Size = new_block->next->Report_Size;
+                        new_block->Report_Size = new_block->prev->Report_Size;
                     }
                     if(!(new_block->Report_Count)) {
-                        new_block->Report_Count = new_block->next->Report_Count;
+                        new_block->Report_Count = new_block->prev->Report_Count;
                     }
                     next_block = true;
                     break;
@@ -172,6 +213,4 @@ hid_block_t* USB_hid_parse_report(uint8_t* data, uint32_t length) {
     }
     return new_block;
 }
-
-
 

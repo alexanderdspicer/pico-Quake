@@ -88,7 +88,7 @@ typedef struct {
 #define _SELF_POWERED   0b01000000
 #define _REMOTE_WAKE    0b00100000
 
-typedef struct {
+typedef struct { //Fix Alignment
     uint8_t     bLength;
     uint8_t     bDescriptorType; // = 0x02
     uint16_t    wTotalLength;
@@ -102,7 +102,7 @@ typedef struct {
 
 //===============================================
 
-typedef struct {
+typedef struct { //Fix Alignment
     uint8_t     bLength;
     uint8_t     bDescriptorType; // = 0x00
     uint16_t    bcdUSB;
@@ -149,7 +149,7 @@ typedef enum {
     MISC =                  0xef
 } class_codes_e;
 
-typedef struct {
+typedef struct { //Alignment?
     uint8_t     bLength;
     uint8_t     bDescriptorType; // = 0x04
     uint8_t     bInterfactypedef enumber;
@@ -202,21 +202,14 @@ typedef enum {
     TURKISH_F =         0x23
 } country_codes_e;
 
-typedef enum {
-    NONE =      0x00,
-    KEYBOARD =  0x01,
-    MOUSE =     0x02,
-    RESERVED
-} hid_protocol_e
-
-typedef struct {
-    uint8_t     bLength;
-    uint8_t     bDescriptorType; // = 0x21
-    uint16_t    bcdHID;
-    uint8_t     bCountryCode;
-    uint8_t     bNumDescriptors;
-    uint8_t     bDescriptorType;
-    uint16_t    wDescriptorLength;
+typedef struct { //Fix alignment
+    uint8_t             bLength;
+    uint8_t             bDescriptorType; // = 0x21
+    uint16_t            bcdHID;
+    country_codes_e     bCountryCode;
+    uint8_t             bNumDescriptors;
+    uint8_t             bDescriptorType;
+    uint16_t            wDescriptorLength;
 } hid_descriptor_t;
 
 //===============================================
@@ -257,14 +250,14 @@ typedef struct {
 //===============================================
 
 typedef struct hid_block_s {
-    uint8_t     Usage_Page[4];         //God forbid anything use more than 4 Usage pages at a time
-    uint32_t    Usage_Maximum;
-    uint32_t    Usage_Minimum;
-    int32_t     Logical_Maximum;
-    int32_t     Logical_Minimum;
-    uint8_t     Report_Size;
-    uint8_t     Report_Count;
+    uint8_t         Usage_Page[4]; //God forbid anything use more than 4 Usage pages at a time
+    uint32_t        Usage_Maximum;
+    uint32_t        Usage_Minimum;
+    int32_t         Logical_Maximum;
+    int32_t         Logical_Minimum;
     hid_block_s*    next;
+    uint8_t         Report_Size;
+    uint8_t         Report_Count;
 } hid_block_t;
 
 typedef struct usb_address_s {
@@ -273,7 +266,7 @@ typedef struct usb_address_s {
     uint8_t     bus;
     uint8_t     device_address;
     uint8_t     endpoint;
-    usb_address_s* next;
+    //usb_address_s* prev;
 } usb_address_t;
 
 #define LEFT_CONTROL    0b00000001
@@ -293,7 +286,7 @@ typedef struct usb_address_s {
 
 void USB_init(); //SET ISOSYNCHRONOUS TRANSFER MODE (and check if its support is required in HID)
 
-void* USB_configure(usb_address_t address);
+void* USB_configure(usb_address_t* address);
 
 hid_block_t* USB_hid_parse_report(uint8_t* data, uint32_t length);
 
