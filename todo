@@ -3,54 +3,34 @@
 - [ ] Stand alone text editor for editing configs and the like?
 # keys.c
 - [?] Make Console history work off of pointers, not buffer contents
-- [x] Refactor Console history out of 'keys.c' and into more appropriate places such as 'cmd.c', or even *remove it all together*
 - [?] DMA when copying Console history
-- [x] ensure 'menubound' is fully "extinct" and removed
 - [ ] 'Key_Event' calls 'Char_Event' when applicable, then remove 'Char_Event' from header
 - [ ] eventually add macros for keycode keyboard definitions, such as 'K_TAB'
 - [ ] Alter program structure such that 'usb.c' -> 'input.c' <-> 'keys.c' (such that a 'controllers.c' may be defined by prospective individuals)
 - [ ] Remove "keydown" in 'key.c' (in favor of direct feeding HID data) and 'console.c' (in favor of key events)
 - [ ] send keyboard HID data to 'Key_Event' instead of single keycodes
-- [x] remove 'key_dest' and replace with a uint8_t, which is an index to an array of function pointers (callbacks)
 - [ ] minimize code in 'Key_Console' and move to 'console.c'
-# usb.c
-- [ ] Finish implementing USB driver
-- [ ] Posture for additional USB support of hubs, ethernet adapters, audio outputs, and mass storage devices
-- [ ] Steal extra RAM from USB buffer?
 # menu.c
 - [ ] Make menu modifications to reflect additional abilities, such as pinouts, enabling of I2C stacks/networking etc
 # README
 - [ ] Write README
 # Compilation
 - [ ] Design build system, ideally with CMake, although other systems are welcome as well
-- [ ] Build in the following groups:
-    | The OS              | "Quake"               |
-    |---------------------|-----------------------|
-    | usb                 | Server infrastructure |
-    | cvars               | Client infrastructure |
-    | sound               | 3d rendering engine   |
-    | console             | palette               |
-    | commands            | pak loading           |
-    | filesystem          | wad loading           |
-    | networking          | 
-    | memory alloc        |
-    | 2d rendering engine |
+- [ ] Ensure the following are implemented correctly:
+    | "Quake"               |
+    |-----------------------|
+    | Server infrastructure |
+    | Client infrastructure |
+    | 3d rendering engine   |
+    | palette               |
+    | pak loading           |
+    | wad loading           |
 - [ ] Compile Flags:
-    - [ ] 'COLOR_MODE': indicates the bit-"ness" of the palette used by the game, i.g. 888, 565, 555 etc.
-    - [ ] 'NET_PLAY': indicates whether or not the binary should be built with netplay support
-    - [ ] 'SOUND': indicates whether or not the binary should be built with sound support
     - [ ] 'DEDICATED': indicates whether or not the binary should be built to only act as a server
+    - includes compile flags from "pico-OS"
 # multicore work
-- [ ] Move client, server, and primary rendering to Core 0
-- [ ] Move USB handling, Netplay and Sound to Core 1
+- [ ] Use format set by "pico-OS"
 # filesystem
-- [ ] Posture for filesystem & SquashFs Compression (of as of yet determined variety) support
-- [ ] Posture additionally for FAT32 file system support for the aforementioned mass storage devices (4gb should be more than enough)
-- [ ] When decompressing a SquashFs file, use 4KB blocks such that each block may be loaded into SRAM 4 and/or 5
-    so that decompression is less likely to interupt DMA requests. Both 4 & 5 are likely to be used at startup to speed up
-    loading the initial RamDisk
-- [ ] Level data exclusively in Flash? (~12Mbytes/s) or in USB MSD? (~12Mbits/s)
-- [ ] No XIP Cache?
+- [ ] Use format set by "pico-OS"
 # Networking
-- [ ] I2C, USB, Pico W support (Bluetooth, Wifi)
-- [ ] Use Alarms for network timeout
+- [ ] Use format set by "pico-OS"
